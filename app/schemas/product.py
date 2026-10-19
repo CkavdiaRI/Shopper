@@ -19,3 +19,4 @@ class ProductOut(BaseModel):
     price: float
     stock: int
     dimensions: Dimensions | None = None
+    low_stock: bool
