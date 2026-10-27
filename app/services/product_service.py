@@ -10,12 +10,19 @@ PRODUCTS = {
 
 
 class ProductService:
-    def get_by_id(self, product_id: int) -> dict | None:
-        product = PRODUCTS.get(product_id)
-        if product is None:
-            raise ValueError(f"Product {product_id} not found")
-        return self._with_flags(product) 
-        # low_stock is a derived field, not stored in the database
+    # def get_by_id(self, product_id: int) -> dict | None:
+    #     product = PRODUCTS.get(product_id)
+    #     if product is None:
+    #         raise ValueError(f"Product {product_id} not found")
+    #     return self._with_flags(product) 
+    #     # low_stock is a derived field, not stored in the database
+
+    def __init__(self, source):
+        self.source = source
+
+    async def get_by_id(self, product_id: int) -> dict | None:
+        product = await self.source.get_by_id(product_id)
+
 
     def _with_flags(self, product: dict):
         return {**product, "low_stock": product["stock"] < LOW_STOCK_LIMIT}

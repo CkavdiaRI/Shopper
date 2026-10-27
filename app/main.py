@@ -1,12 +1,13 @@
 from sys import prefix
-import os
-from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from app.routers import products
+from app.core.config import settings
 
-load_dotenv() # Load environment variables from .env file
-SUPPLIER_BASE_URL = os.getenv("SUPPLIER_BASE_URL") # Get the value of SUPPLIER_BASE_URL from environment variables
+# load_dotenv() # Load environment variables from .env file
+# SUPPLIER_BASE_URL = os.getenv("SUPPLIER_BASE_URL") # Get the value of SUPPLIER_BASE_URL from environment variables
+
+settings.supplier_base_url #-> You can access the supplier_base_url from the settings object, which is an instance of the Settings class.
 
 app = FastAPI() # Creates an instance of FastAPI class, which is the main entry point for the application
 

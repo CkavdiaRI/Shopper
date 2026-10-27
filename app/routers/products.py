@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.product import ProductCreate, ProductOut
 from app.services.product_service import ProductService
 import asyncio
-
+from app.services.supplier_service import SupplierService
+from app.core.config import settings
 
 # Creates an instance of APIRouter class, which is used to define a group of related routes. 
 # This allows for better organization and modularity of the application.
@@ -27,9 +28,11 @@ router = APIRouter(prefix = "/products", tags = ["products"])
 #  and the server would become unresponsive. In such cases, using async def and await asyncio.sleep() 
 # would be more efficient.
 
-def get_product_service() -> ProductService:
-    return ProductService()
+def get_supplier_service() -> SupplierService:
+    return SupplierService(base_url=settings.supplier_base_url)
 
+def get_product_service(source: SupplierService = Depends(get_supplier_service)) -> ProductService:
+    return ProductService(source)
 
 @router.get("/{product_id}", response_model=ProductOut) 
 async def get_product(
