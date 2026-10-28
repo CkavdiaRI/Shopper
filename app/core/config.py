@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     supplier_base_url: str
+    database_url: str
 
 
 settings = Settings()
