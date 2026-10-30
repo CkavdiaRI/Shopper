@@ -1,59 +1,57 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.product import ProductCreate, ProductOut
-from app.services.product_service import ProductService
-import asyncio
-from app.services.supplier_service import SupplierService
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Path, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.config import settings
+from app.db.database import get_db
+from app.repositories.category_repository import CategoryRepository
+from app.repositories.product_repository import ProductRepository
+from app.schemas.product import PitchOut, ProductCreate, ProductOut, ProductQuery
+from app.services.ai_service import AiService
+from app.services.product_service import ProductService
 
-# Creates an instance of APIRouter class, which is used to define a group of related routes. 
-# This allows for better organization and modularity of the application.
-router = APIRouter(prefix = "/products", tags = ["products"]) 
-# Prefix is added to all routes defined in this router. 
-# Tags are used for documentation purposes.
+router = APIRouter(prefix="/products", tags=["products"])
 
 
+def get_ai_service() -> AiService:
+    return AiService(settings.groq_api_key)
 
-# @app.get("/products/{product_id}") 
-# def get_product(product_id: int):
-#     #await asyncio.sleep(3) # Simulating a call to a database warehouse
-#     time.sleep(3)
-#     if product_id not in PRODUCTS:
-#         raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
-#     return PRODUCTS[product_id]
-##### FastAPI runs plain def routes in separate worker threads, so the blocking time.sleep()
-#  does not block the entire server. It only blocks the thread that is handling that request.
-#  This is why the server can still handle other requests while one request is sleeping.
 
-#  However, if you have many requests that are all sleeping, you could run out of threads
-#  and the server would become unresponsive. In such cases, using async def and await asyncio.sleep() 
-# would be more efficient.
+def get_product_service(db: AsyncSession = Depends(get_db)) -> ProductService:
+    return ProductService(ProductRepository(db), CategoryRepository(db))
 
-def get_supplier_service() -> SupplierService:
-    return SupplierService(base_url=settings.supplier_base_url)
 
-def get_product_service(source: SupplierService = Depends(get_supplier_service)) -> ProductService:
-    return ProductService(source)
-
-@router.get("/{product_id}", response_model=ProductOut) 
+@router.get("/{product_id}", response_model=ProductOut, summary="Get one product")
 async def get_product(
-     product_id: int, 
-     service: ProductService = Depends(get_product_service)
-     ):
-    product = service.get(product_id)
-    if product is None:
-        raise HTTPException(status_code=404, detail=f"Product {product_id} not found")
-    return product
-
-@router.post("", response_model=ProductOut, status_code=201, summary="Created a new product")
-async def create_product(product: ProductCreate):
-    service = ProductService()
-    return service.create(product)
-    # new_id = max(PRODUCTS) + 1
-    # PRODUCTS[new_id] = {"id": new_id, **product.model_dump()} # modeldump() converts the Pydantic model to a dictionary
-    # return PRODUCTS[new_id]
+    product_id: int = Path(gt=0),
+    service: ProductService = Depends(get_product_service),
+):
+    return await service.get_by_id(product_id)
 
 
-# If input is {"title": "M", "price": "banana", "stock": -5} , it will still work
-# Hence we need to add input validation using Pydantic models.
+@router.get("", response_model=list[ProductOut], summary="List products, one page at a time")
+async def list_products(
+    query: Annotated[ProductQuery, Query()],
+    service: ProductService = Depends(get_product_service),
+):
+    return await service.list_products(query)
 
-# 422	Error: Unprocessable Content if given wrong input
+
+@router.post("", response_model=ProductOut, status_code=201, summary="Create a product")
+async def create_product(
+    product: ProductCreate,
+    service: ProductService = Depends(get_product_service),
+):
+    return await service.create(product)
+
+
+@router.get("/{product_id}/pitch", response_model=PitchOut, summary="A short AI-written notification")
+async def get_pitch(
+    product_id: int = Path(gt=0),
+    service: ProductService = Depends(get_product_service),
+    ai: AiService = Depends(get_ai_service),
+):
+    product = await service.get_by_id(product_id)
+    notification = await ai.make_pitch(product)
+    return {"product_id": product_id, "notification": notification}

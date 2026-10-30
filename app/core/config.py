@@ -5,6 +5,7 @@ class Settings(BaseSettings):
 
     supplier_base_url: str
     database_url: str
+    groq_api_key: str = ""
 
 
 settings = Settings()

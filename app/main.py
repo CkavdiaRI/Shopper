@@ -14,17 +14,19 @@ from app.db.models import Base
 
 from contextlib import asynccontextmanager
 
-
+from app.core.errors import register_error_handlers
 from app.db.database import engine, get_db
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    await engine.dispose
+    await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
+register_error_handlers(app)
 
 
 
@@ -36,9 +38,6 @@ settings.supplier_base_url #-> You can access the supplier_base_url from the set
 #app = FastAPI() # Creates an instance of FastAPI class, which is the main entry point for the application
 
 app.include_router(products.router, prefix="/api/v1") # Include the products router in the main application
-
-
-app.include_router(products.router, prefix="/api/v2")
 
 # Split the main file into the following :
 # 1. Routers -> HTTP, paths, status codes
