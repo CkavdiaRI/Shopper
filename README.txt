@@ -69,3 +69,7 @@ DATABASE_URL=mysql+asyncmy://root:your_password@localhost:3306/shopnest
 
 AsyncContextManager
 -- Prepares the application for startup and shutdown
+
+
+--------- 
+AsyncSession repersents a session that allows us to perform asynchronous database operations
