@@ -73,3 +73,40 @@ AsyncContextManager
 
 --------- 
 AsyncSession repersents a session that allows us to perform asynchronous database operations
+
+------
+
+A test is a small function that calls our code with an input that we choose and 
+checks whether the output matches what we expect.
+
+Let's break that definition into three parts.
+1. We choose an input.
+2. We execute our code.
+3. We check whether the actual output matches the expected output.
+
+A unit is the smallest piece of code that we want to test independently.
+
+Integration tests check whether multiple components work correctly together.
+
+Functional test -> test the application from the perspective of a real user.
+An end-to-end test checks whether the complete flow works.
+
+pip install pytest pytest-cov
+
+If a test is hard to write, the code is telling us something. Let us listen.
+
+
+Now we will improve those tests in three ways:
+1. Structure tests properly using Arrange – Act – Assert.
+2. Test boundary conditions (edge cases).
+3. Test invalid inputs and verify that our application rejects them.
+
+
+Red-Green cycle (Test-Driven Development).
+Change the tests first before changing or updating the code
+
+Never run a test without assert
+
+Dependency overrides is a dictionary that allows us to replace exisiting dependencies
+
+A fixture is a reusable helper that prepares something a test needs.
