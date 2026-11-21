@@ -1,4 +1,4 @@
-.venv/
+﻿.venv/
 __pycache__/
 *.py[cod]
 
@@ -13,3 +13,6 @@ __pycache__/
 
 dist/
 build/
+
+.opencode/
+

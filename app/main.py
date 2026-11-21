@@ -1,6 +1,7 @@
 from sys import prefix
 
 from fastapi import FastAPI
+import httpx
 from app.routers import products
 from app.core.config import settings
 
@@ -16,13 +17,25 @@ from contextlib import asynccontextmanager
 
 from app.core.errors import register_error_handlers
 from app.db.database import engine, get_db
+from app.services.auth_client import AuthClient
+from app.services.ai_service import AiService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # one client for each service
+    auth_http = httpx.AsyncClient(base_url=settings.auth_service_url, timeout=httpx.Timeout(3.0, connect=0.5))
+    groq_http = httpx.AsyncClient(base_url=settings.groq_url, timeout=httpx.Timeout(4.0, connect=1.0))
+    app.state.auth = AuthClient(auth_http)
+    app.state.ai = AiService(groq_http, settings.groq_api_key, settings.groq_url)
+
     yield
+
+    await auth_http.aclose()
+    await groq_http.aclose()
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
