@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query, Request
@@ -25,7 +26,7 @@ def get_product_service(db: AsyncSession = Depends(get_db)) -> ProductService:
 
 @router.get("/{product_id}", response_model=ProductOut, summary="Get one product")
 async def get_product(
-    product_id: int = Path(gt=0),
+    product_id: uuid.UUID = Path(),
     service: ProductService = Depends(get_product_service),
 ):
     return await service.get_by_id(product_id)
@@ -51,7 +52,7 @@ async def create_product(
 @router.get("/{product_id}/pitch", response_model=PitchOut, summary="A short AI-written notification",
             dependencies=[Depends(current_user)])
 async def get_pitch(
-    product_id: int = Path(gt=0),
+    product_id: uuid.UUID = Path(),
     db = Depends(get_db),
     service: ProductService = Depends(get_product_service),
     ai: AiService = Depends(get_ai_service),

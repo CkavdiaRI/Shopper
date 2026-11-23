@@ -48,3 +48,6 @@ class AuthCLient :
         if response.status_code != 200:
             raise AuthServiceError("The login service is not available right now")
         return response.json()
+
+
+AuthClient = AuthCLient

@@ -7,7 +7,7 @@ class CircuitBreaker:
         self.failures = failure
         self.rest_seconds = reset_seconds
         self.count = 0
-        self.opened_at = float | None = None
+        self.opened_at: float | None = None
 
     @property
     def state(self) -> str:
@@ -28,3 +28,6 @@ class CircuitBreaker:
         self.count += 1
         if self.count >= self.failures:
             self.opened_at = time.time()
+
+
+Breaker = CircuitBreaker

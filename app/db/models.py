@@ -1,9 +1,11 @@
 import enum
+import uuid
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Numeric, String, Text
+from sqlalchemy import ForeignKey, Numeric, String, Text, Uuid
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+from app.core.ids import new_id
 
 class State(enum.Enum):
     ACTIVE = "ACTIVE"
@@ -11,7 +13,7 @@ class State(enum.Enum):
 
 
 class Base(DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=new_id)
     state: Mapped[State] = mapped_column(default=State.ACTIVE)
 
 
@@ -30,5 +32,5 @@ class Product(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(19, 2), index=True)
     stock: Mapped[int]
     image_url: Mapped[str | None] = mapped_column(String(500))
-    category_id: Mapped[int | None] = mapped_column(ForeignKey("category.id"))
+    category_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("category.id"))
     category: Mapped[Category | None] = relationship(back_populates="products")

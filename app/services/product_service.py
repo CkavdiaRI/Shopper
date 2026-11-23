@@ -1,3 +1,5 @@
+import uuid
+
 from app.core.errors import ProductNotFoundError
 from app.db.models import Product
 from app.schemas.product import ProductCreate, ProductQuery
@@ -10,7 +12,7 @@ class ProductService:
         self.repo = repo
         self.categories = categories
 
-    async def get_by_id(self, product_id: int) -> dict:
+    async def get_by_id(self, product_id: uuid.UUID) -> dict:
         product = await self.repo.get_by_id(product_id)
         if product is None:
             raise ProductNotFoundError(f"Product {product_id} not found")

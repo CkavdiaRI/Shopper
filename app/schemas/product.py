@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 from typing import Literal
 
@@ -18,7 +19,7 @@ class ProductCreate(BaseModel):
 
 
 class ProductOut(BaseModel):
-    id: int
+    id: uuid.UUID
     title: str
     price: Decimal
     stock: int
@@ -41,5 +42,5 @@ class ProductQuery(BaseModel):
 
 
 class PitchOut(BaseModel):
-    product_id: int
+    product_id: uuid.UUID
     notification: str

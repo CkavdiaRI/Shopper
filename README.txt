@@ -210,3 +210,89 @@ Three building blocks --
 opencode mcp add context7 --url https://mcp.context7.com/mc
 
 uv pip install "mcp==2.3.0" httpx
+
+
+---------
+
+A 503 means: this service is not available right now.
+
+-----
+
+Tenacity is a Python library used for retrying failed operations.
+
+pip install tenacity==9.2.1
+
+------------
+
+UUIDs -> Universally Unique Identifiers
+
+e811af26-7965-4235-9a92-39b0554d521e
+
+UUID contains 128 bits (16 bytes).
+It is represented using 36 characters, including hyphens.
+Without hyphens, it contains 32 hexadecimal characters.
+
+
+
+---- Different version of UUID
+
+UUID v1 — Time + Computer identity
+
+Uses time and computer-related information. It can reveal information about when and where it was generated.
+
+--
+
+UUID v4 — Random
+
+Uses random bits. It is simple and widely used, but IDs do not follow chronological order.
+
+--
+
+UUID v7 — Time + Random
+
+Starts with a 48-bit Unix timestamp in milliseconds, followed by random bits. This makes UUIDs approximately time-ordered.
+
+----
+
+Why are we choosing UUID v7?
+For our ShopNest project, we choose UUID v7 because:
+1. IDs are difficult to guess compared with simple incremental IDs.
+2. We don't need a central counter to generate IDs.
+3. IDs generally increase with time.
+4. Database insertions are generally more efficient than with completely random UUID v4 IDs.
+
+----
+
+
+SQLAlchemy provides three inheritance strategies.
+
+1. Single Table Inheritance
+
+Advantage : SImpler table, No joins, SImpler queries
+Disavdatbage : Many NULL values
+
+2. Joined Table Inheritance
+
+Each class gets its own table
+
+Advantages:
+- Clean database structure.
+- Child-specific columns can be NOT NULL.
+- Less duplication.
+
+Disadvantages:
+- More INSERT statements.
+- SELECT queries require JOINs.
+
+3. Concrete Table Inheritance
+
+Each child gets its own independant table
+
+Advantages: Independent tables and no joins.
+
+Disadvantages:
+- Duplicate common columns.
+- No common users table.
+
+
+Pydantic Discriminated Union
